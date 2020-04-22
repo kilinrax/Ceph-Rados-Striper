@@ -1,0 +1,10 @@
+Changes
+Makefile.PL
+MANIFEST
+ppport.h
+README
+Striper.xs
+t/Ceph-Rados-Striper.t
+fallback/const-c.inc
+fallback/const-xs.inc
+lib/Ceph/Rados/Striper.pm
