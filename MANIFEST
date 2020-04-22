@@ -3,8 +3,9 @@ Makefile.PL
 MANIFEST
 ppport.h
 README
+typemap
 Striper.xs
-t/Ceph-Rados-Striper.t
+t/000_smoke.t
 fallback/const-c.inc
 fallback/const-xs.inc
 lib/Ceph/Rados/Striper.pm

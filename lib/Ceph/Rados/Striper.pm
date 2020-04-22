@@ -18,7 +18,7 @@ my $CHUNK_SIZE = 1024 * 1024; # TODO - tune to rgw_max_chunk_size?
 
 sub new {
     my ($class, $io_context) = @_;
-    my $obj = create($io_context, $pool);
+    my $obj = create($io_context);
     bless $obj, $class;
     return $obj;
 }
@@ -57,10 +57,10 @@ sub write_data {
     my $retval;
     for (my $offset = 0; $offset <= $length; $offset += $CHUNK_SIZE) {
         my $chunk;
-        if ($offset + $DEFAULT_OSD_MAX_WRITE > $length) {
-            $chunk = $length % $DEFAULT_OSD_MAX_WRITE;
+        if ($offset + $CHUNK_SIZE > $length) {
+            $chunk = $length % $CHUNK_SIZE;
         } else {
-            $chunk = $DEFAULT_OSD_MAX_WRITE;
+            $chunk = $CHUNK_SIZE;
         }
         #printf "Writing bytes %i to %i\n", $offset, $offset+$chunk;
         $retval = $self->_write($oid, substr($data, $offset, $chunk), $chunk, $offset)

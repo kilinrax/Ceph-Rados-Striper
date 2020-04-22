@@ -5,13 +5,15 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME              => 'Ceph::Rados::Striper',
     VERSION_FROM      => 'lib/Ceph/Rados/Striper.pm', # finds $VERSION, requires EU::MM from perl >= 5.5
-    PREREQ_PM         => {}, # e.g., Module::Name => 1.1
+    PREREQ_PM         => {
+        'Ceph::Rados' => 0,
+    }, # e.g., Module::Name => 1.1
     ABSTRACT_FROM     => 'lib/Ceph/Rados/Striper.pm', # retrieve abstract from module
     AUTHOR            => 'alex <alex@>',
     #LICENSE           => 'perl',
     #Value must be from legacy list of licenses here
     #http://search.cpan.org/perldoc?Module%3A%3ABuild%3A%3AAPI
-    LIBS              => [''], # e.g., '-lm'
+    LIBS              => ['-lradosstriper'], # e.g., '-lm'
     DEFINE            => '', # e.g., '-DHAVE_SOMETHING'
     INC               => '-I.', # e.g., '-I. -I/usr/include/other'
 	# Un-comment this if you add C files to link with later:

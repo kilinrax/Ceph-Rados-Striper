@@ -9,13 +9,13 @@
 
 #include "const-c.inc"
 
-MODULE = Ceph::Rados::Striper		PACKAGE = Ceph::Rados::Striper		
+MODULE = Ceph::Rados::Striper		PACKAGE = Ceph::Rados::Striper
 
 INCLUDE: const-xs.inc
 
 int
 create(io)
-    rados_ioctx *    io
+    rados_ioctx_t *  io
   PREINIT:
     rados_striper_t  striper;
     int              err;
@@ -78,11 +78,11 @@ _stat(striper, soid)
     err = rados_striper_stat(striper, soid, &psize, &pmtime);
     if (err < 0)
         croak("cannot stat object '%s': %s", soid, strerror(-err));
-    XPUSHs(sv_2mortal(newSVuv(size)));
-    XPUSHs(sv_2mortal(newSVuv(mtime)));
+    XPUSHs(sv_2mortal(newSVuv(psize)));
+    XPUSHs(sv_2mortal(newSVuv(pmtime)));
 
 SV *
-_read(striper, oid, len, off = 0)
+_read(striper, soid, len, off = 0)
     rados_striper_t  striper
     const char *     soid
     size_t           len
