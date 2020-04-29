@@ -5,6 +5,7 @@
 
 #include "ppport.h"
 
+#include <rados/librados.h>
 #include <radosstriper/libradosstriper.h>
 
 #include "const-c.inc"
@@ -13,18 +14,40 @@ MODULE = Ceph::Rados::Striper		PACKAGE = Ceph::Rados::Striper
 
 INCLUDE: const-xs.inc
 
-int
+rados_striper_t
 create(io)
     rados_ioctx_t *  io
   PREINIT:
     rados_striper_t  striper;
     int              err;
   INIT:
-    New( 0, striper, 1, rados_ioctx_t );
+    New( 0, striper, 1, rados_striper_t );
   CODE:
-    err = rados_striper_create(&io, &striper);
+    err = rados_striper_create(io, &striper);
     if (err < 0)
         croak("cannot create rados striper: %s", strerror(-err));
+    RETVAL = striper;
+  OUTPUT:
+    RETVAL
+
+int
+_object_layout(striper, stripe_unit, stripe_count, object_size)
+    rados_striper_t  striper
+    unsigned int     stripe_unit
+    unsigned int     stripe_count
+    unsigned int     object_size
+  PREINIT:
+    int              err;
+  CODE:
+    err = rados_striper_set_object_layout_stripe_unit(striper, stripe_unit);
+    if (err < 0)
+        croak("cannot set rados stripe unit to %i: %s", stripe_unit, strerror(-err));
+    err = rados_striper_set_object_layout_stripe_count(striper, stripe_count);
+    if (err < 0)
+        croak("cannot set rados stripe count to %i: %s", stripe_count, strerror(-err));
+    err = rados_striper_set_object_layout_object_size(striper, object_size);
+    if (err < 0)
+        croak("cannot set rados object size to %i: %s", object_size, strerror(-err));
     RETVAL = err;
   OUTPUT:
     RETVAL
@@ -97,6 +120,20 @@ _read(striper, soid, len, off = 0)
     if (retlen < 0)
         croak("cannot read object '%s': %s", soid, strerror(-retlen));
     RETVAL = newSVpv(buf, retlen);
+  OUTPUT:
+    RETVAL
+
+int
+remove(striper, soid)
+    rados_striper_t  striper
+    const char *     soid
+  PREINIT:
+    int              err;
+  CODE:
+    err = rados_striper_remove(striper, soid);
+    if (err < 0)
+        croak("cannot remove striped object '%s': %s", soid, strerror(-err));
+    RETVAL = err == 0;
   OUTPUT:
     RETVAL
 

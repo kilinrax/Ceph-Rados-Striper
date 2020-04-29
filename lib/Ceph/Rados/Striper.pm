@@ -14,13 +14,24 @@ our @ISA = qw(Exporter);
 
 # Preloaded methods go here.
 
-my $CHUNK_SIZE = 1024 * 1024; # TODO - tune to rgw_max_chunk_size?
+my $STRIPE_UNIT  = 64 * 1024;
+my $STRIPE_COUNT = 5;
+my $OBJECT_SIZE  = 120 * 1024 * 1024;
+my $CHUNK_SIZE   = 1024 * 1024;
 
 sub new {
     my ($class, $io_context) = @_;
     my $obj = create($io_context);
     bless $obj, $class;
     return $obj;
+}
+
+sub object_layout {
+    my ($self, $stripe_unit, $stripe_count, $object_size) = @_;
+    $stripe_unit  //= $STRIPE_UNIT;
+    $stripe_count //= $STRIPE_COUNT;
+    $object_size  //= $OBJECT_SIZE;
+    $self->_object_layout($stripe_unit, $stripe_count, $object_size);
 }
 
 sub DESTROY {
@@ -39,14 +50,16 @@ sub write {
 
 sub write_handle {
     my ($self, $soid, $handle) = @_;
+    my $length = -s $handle
+        or die "Could not get size for filehandle $handle";
+    $self->object_layout();
     my ($retval, $data);
     my $offset = 0;
-    while (my $length = sysread($handle, $data, $CHUNK_SIZE)) {
+    while (my $chunk_length = sysread($handle, $data, $CHUNK_SIZE)) {
         #printf "Writing bytes %i to %i\n", $offset, $offset+$length;
-        $retval = $self->_write($soid, $data, $length, $offset)
+        $retval = $self->_write($soid, $data, $chunk_length, $offset)
             or last;
-        # add returned length to offset, not read length - they shouldn't differ, but this is probably safer
-        $offset += $length;
+        $offset += $chunk_length;
     }
     return $retval;
 }
@@ -54,6 +67,7 @@ sub write_handle {
 sub write_data {
     my ($self, $oid, $data) = @_;
     my $length = length($data);
+    $self->object_layout();
     my $retval;
     for (my $offset = 0; $offset <= $length; $offset += $CHUNK_SIZE) {
         my $chunk;
