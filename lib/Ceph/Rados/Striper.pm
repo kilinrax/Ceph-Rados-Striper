@@ -198,14 +198,12 @@ Ceph::Rados::Striper - Perl extension to wrap libradosstriper-dev and provide st
 
   use Ceph::Rados;
   use Ceph::Rados::Striper;
-  
+
   Ceph::Rados::Striper->new($ioctx);
 
 =head1 DESCRIPTION
 
-Stub documentation for Ceph::Rados::Striper, created by h2xs. It looks like the
-author of the extension was negligent enough to leave the stub
-unedited.
+A mostly drop-in replacement for L<Ceph::Radio::IO> objects, which provides read/write/delete/stat methods
 
 =head2 EXPORT
 
@@ -218,6 +216,47 @@ None by default.
   LIBRADOSSTRIPER_VER_MAJOR
   LIBRADOSSTRIPER_VER_MINOR
 
+=head1 METHODS
+
+=head2 object(stripe_unit, stripe_count, object_size)
+
+Sets the object layout.  Defaults are 64k, 5, and 120Mb.
+
+Stripe unit is the smallest unit of data.  Files will be zero padded up to a multiple of this.
+
+Stripe count is the number of stripes per object.
+
+Object size is the threshold at which an extra set of stripes will be created.  i.e. for the defaults, a 121Mb file will have 10 stripes.
+
+=head2 write(soid, source)
+
+Wraps C<rados_write()>.  Write data from the source, to a ceph object with the supplied ID.  Source can either be a perl scalar, or a handle to read data from.  Returns 1 on success.  Croaks on failure.
+
+=head2 write_data(soid, data)
+
+=head2 write_handle(soid, handle)
+
+As L<write_data()>, but explicitly declaring the source type.
+
+=head2 append(soid, data)
+
+Wraps C<rados_striper_append()>.  Appends data to the ceph object with the supplied ID.  Data must be a perl scalar, not a handle.  Returns 1 on success.  Croaks on failure.
+
+=head2 stat(soid)
+
+Wraps C<rados_striper_stat()>.  Returns a 2-element list of (filesize, mtime) for the ceph object with the supplied ID.
+
+=head2 read(soid, len=filesize, offset=0)
+
+Wraps C<rados_striper_read()>.  Read data from the ceph object with the supplied ID, and return the data read.  Croaks on failure.
+
+=head2 read_handle(soid, handle)
+
+As C<read()>, but writes the data directly to the supplied handle instead of returning it.
+
+=head2 remove(soid)
+
+Wraps C<rados_striper_remove()>.  Deletes the ceph object with the supplied ID.  Returns 1 on success.  Croaks on failure.
 
 
 =head1 SEE ALSO
