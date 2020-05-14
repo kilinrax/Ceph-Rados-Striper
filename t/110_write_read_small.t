@@ -15,22 +15,18 @@ my $pool = $ENV{CEPH_POOL} || 'test_' . join '', map { $rnd[rand @rnd] } 0..9;
 
 my $client = $ENV{CEPH_CLIENT} || 'admin';
 
-my $huge_file = "$Bin/test_huge_file";
-if (-e $huge_file && -s $huge_file < 90 * 1024 * 1024) {
-    warn "$huge_file was truncated, removing";
-    unlink $huge_file;
-}
-if (!-e $huge_file) {
-    diag "creating $huge_file";
-    system "dd if=/dev/zero of=$huge_file count=125M iflag=count_bytes"
+my $small_file = "$Bin/test_small_file";
+if (!-e $small_file) {
+    diag "creating $small_file";
+    system "echo 'quux' >$small_file"
 }
 
 my %files;
 {
-    open my $HUGE, "$Bin/test_huge_file" or die "Cannot open $Bin/test_huge_file: $!";
-    binmode $HUGE;
+    open my $SMALL, "$Bin/test_small_file" or die "Cannot open $Bin/test_small_file: $!";
+    binmode $SMALL;
     undef $/;
-    $files{test_huge} = $HUGE;
+    $files{test_small} = $SMALL;
 }
 
 my $pool_created_p = system "ceph osd pool create $pool 1"
@@ -53,7 +49,7 @@ SKIP: {
         my $out_fn = "/tmp/$0.test.out";
         open my $out_fh, ">$out_fn"
             or die "Could not open output filehandle '$out_fn': $!";
-        ok( $striper->read_handle_perl($filename, $out_fh),
+        ok( $striper->read_handle($filename, $out_fh),
             "Read back $filename object" );
         close $out_fh;
         is( -s $out_fn, $length, "Files have equal size" );

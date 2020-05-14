@@ -50,8 +50,10 @@ sub write {
 
 sub write_handle {
     my ($self, $soid, $handle) = @_;
+    Carp::confess "Called with not an open handle"
+        unless openhandle $handle;
     my $length = -s $handle
-        or die "Could not get size for filehandle $handle";
+        or Carp::confess "Could not get size for filehandle $handle";
     $self->object_layout();
     my ($retval, $data);
     my $offset = 0;
@@ -88,7 +90,7 @@ sub append {
     $self->_append($oid, $data, length($data));
 }
 
-sub read_handle {
+sub read_handle_perl {
     my ($self, $oid, $handle) = @_;
     (my $length, undef) = $self->_stat($oid);
     #
@@ -99,9 +101,18 @@ sub read_handle {
         } else {
             $chunk = $CHUNK_SIZE;
         }
+        printf "writing %i - %i of %i\n", $offset, $offset+$chunk, $length;
         my $data = $self->_read($oid, $chunk, $offset);
         syswrite $handle, $data;
     }
+    return 1;
+}
+
+sub read_handle {
+    my ($self, $oid, $handle) = @_;
+    Carp::confess "Called with not an open handle"
+        unless openhandle $handle;
+    &_read_to_fh
 }
 
 sub read {

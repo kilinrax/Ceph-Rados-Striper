@@ -124,6 +124,42 @@ _read(striper, soid, len, off = 0)
     RETVAL
 
 int
+_read_to_fh(striper, soid, fh)
+    rados_striper_t  striper
+    const char *     soid
+    SV *             fh
+  PREINIT:
+    char *           buf;
+    size_t           len;
+    size_t           psize;
+    time_t           pmtime;
+    int              err;
+    uint64_t         off;
+  INIT:
+    PerlIO *  io     = IoIFP(sv_2io(fh));
+    int       chk_sz = 1024 * 1024;
+    Newx(buf, chk_sz, char);
+  CODE:
+    // stat and determine read length
+    err = rados_striper_stat(striper, soid, &psize, &pmtime);
+    if (err < 0)
+        croak("cannot stat object '%s': %s", soid, strerror(-err));
+    printf("preparing to write from %s to FH, %i bytes\n", soid, psize);
+    for (off=0; off<psize; off+=chk_sz) {
+        len = psize < off + chk_sz ? psize % chk_sz : chk_sz;
+        printf("Reading %i bytes, offset %i, of %i total from striper\n", len, off, psize);
+        err = rados_striper_read(striper, soid, buf, len, off);
+        printf("Writing %i bytes to FH\n", len);
+        PerlIO_write(io, buf, len);
+    }
+    if (err < 0)
+        croak("cannot read object '%s': %s", soid, strerror(-err));
+    RETVAL = err;
+  OUTPUT:
+    RETVAL
+
+
+int
 remove(striper, soid)
     rados_striper_t  striper
     const char *     soid
