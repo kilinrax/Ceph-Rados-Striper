@@ -48,7 +48,7 @@ sub write {
     }
 }
 
-sub write_handle {
+sub write_handle_perl {
     my ($self, $soid, $handle) = @_;
     Carp::confess "Called with not an open handle"
         unless openhandle $handle;
@@ -64,6 +64,16 @@ sub write_handle {
         $offset += $chunk_length;
     }
     return $retval;
+}
+
+sub write_handle {
+    my ($self, $soid, $handle) = @_;
+    Carp::confess "Called with not an open handle"
+        unless openhandle $handle;
+    my $length = -s $handle
+        or Carp::confess "Could not get size for filehandle $handle";
+    $self->object_layout();
+    $self->_write_from_fh($soid, $handle, $length);
 }
 
 sub write_data {

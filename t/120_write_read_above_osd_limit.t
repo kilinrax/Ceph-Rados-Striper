@@ -36,7 +36,7 @@ my %files;
 my $pool_created_p = system "ceph osd pool create $pool 1"
     unless $ENV{CEPH_POOL};
 SKIP: {
-    skip "Can't create $pool pool", 13 if $pool_created_p;
+    skip "Can't create $pool pool", 11 if $pool_created_p;
 
     my ($cluster, $io, $striper, $list, @stat);
     ok( $cluster = Ceph::Rados->new($client), "Create cluster handle" );
@@ -53,7 +53,7 @@ SKIP: {
         my $out_fn = "/tmp/$0.test.out";
         open my $out_fh, ">$out_fn"
             or die "Could not open output filehandle '$out_fn': $!";
-        ok( $striper->read_handle_perl($filename, $out_fh),
+        ok( $striper->read_handle($filename, $out_fh),
             "Read back $filename object" );
         close $out_fh;
         is( -s $out_fn, $length, "Files have equal size" );
