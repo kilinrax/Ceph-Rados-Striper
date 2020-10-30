@@ -175,7 +175,7 @@ our @EXPORT = qw(
 	LIBRADOSSTRIPER_VER_MINOR
 );
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 sub AUTOLOAD {
     # This AUTOLOAD is used to 'autoload' constants from the constant()
