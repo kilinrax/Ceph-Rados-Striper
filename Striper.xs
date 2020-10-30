@@ -71,7 +71,7 @@ _write(striper, soid, data, len, off)
   OUTPUT:
     RETVAL
 
-uint64_t
+int
 _write_from_fh(striper, soid, fh, psize)
     rados_striper_t  striper
     const char *     soid
@@ -95,7 +95,7 @@ _write_from_fh(striper, soid, fh, psize)
         if (err < 0)
             croak("cannot read from filehandle: %s", strerror(-err));
         //printf("writing %i bytes from FH to %s\n", len, soid);
-        err = rados_striper_read(striper, soid, buf, len, off);
+        err = rados_striper_write(striper, soid, buf, len, off);
         if (err < 0)
             croak("cannot write striped object '%s': %s", soid, strerror(-err));
         retlen += len;
