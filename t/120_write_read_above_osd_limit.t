@@ -49,8 +49,12 @@ SKIP: {
 
     while (my ($filename, $handle) = each %files) {
         ok( $striper->write($filename, $handle), "Write $filename object" );
+        my ($size, $mtime);
+        ok( ($size, $mtime) = $striper->stat($filename), "Stat $filename object" );
         my $length = -s $handle;
-        my $out_fn = "/tmp/$0.test.out";
+        is( $size, $length, "stat size equals handle length" );
+        ok($mtime, "mtime $mtime is sane");
+        my $out_fn = "/tmp/$$.test.out";
         open my $out_fh, ">$out_fn"
             or die "Could not open output filehandle '$out_fn': $!";
         ok( $striper->read_handle($filename, $out_fh),
