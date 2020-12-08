@@ -15,14 +15,14 @@ my $pool = $ENV{CEPH_POOL} || 'test_' . join '', map { $rnd[rand @rnd] } 0..9;
 
 my $client = $ENV{CEPH_CLIENT} || 'admin';
 
-my $huge_file = "$Bin/test_huge_file";
-if (-e $huge_file && -s $huge_file < 90 * 1024 * 1024) {
+my $huge_file = "$Bin/test_giant_file";
+if (-e $huge_file && -s $huge_file < 5 * 1024 * 1024 * 1024) {
     warn "$huge_file was truncated, removing";
     unlink $huge_file;
 }
 if (!-e $huge_file) {
     diag "creating $huge_file";
-    system "dd if=/dev/zero of=$huge_file count=125M iflag=count_bytes"
+    system "dd if=/dev/zero of=$huge_file count=5G iflag=count_bytes"
 }
 
 my %files;

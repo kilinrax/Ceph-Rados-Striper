@@ -94,7 +94,7 @@ _write_from_fh(striper, soid, fh, psize)
         err = PerlIO_read(io, buf, len);
         if (err < 0)
             croak("cannot read from filehandle: %s", strerror(-err));
-        //printf("writing %i bytes from FH to %s\n", len, soid);
+        //printf("writing %i bytes at offset %i from FH to %s\n", len, off, soid);
         err = rados_striper_write(striper, soid, buf, len, off);
         if (err < 0)
             croak("cannot write striped object '%s': %s", soid, strerror(-err));
@@ -198,12 +198,13 @@ _read_to_fh(striper, soid, fh)
 
 
 int
-remove(striper, soid)
+_remove(striper, soid)
     rados_striper_t  striper
     const char *     soid
   PREINIT:
     int              err;
   CODE:
+    printf("Removing striped object %s\n", soid);
     err = rados_striper_remove(striper, soid);
     if (err < 0)
         croak("cannot remove striped object '%s': %s", soid, strerror(-err));
