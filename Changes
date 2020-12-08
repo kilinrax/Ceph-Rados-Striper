@@ -1,5 +1,8 @@
 Revision history for Perl extension Ceph::Rados::Striper.
 
+0.04  Tue  8 Dec 12:11:57 GMT 2020
+  - avoid guaranteed striped oid clashes in tests
+
 0.03  Fri 30 Oct 12:27:29 GMT 2020
   - filehandle writes bug fixed, was using the wrong API call
 

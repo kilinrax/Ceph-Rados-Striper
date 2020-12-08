@@ -15,23 +15,23 @@ my $pool = $ENV{CEPH_POOL} || 'test_' . join '', map { $rnd[rand @rnd] } 0..9;
 
 my $client = $ENV{CEPH_CLIENT} || 'admin';
 
-my $huge_file = "$Bin/test_giant_file";
-if (-e $huge_file && -s $huge_file < 5 * 1024 * 1024 * 1024) {
-    warn "$huge_file was truncated, removing";
-    unlink $huge_file;
+my $giant_file = "$Bin/test_giant_file";
+if (-e $giant_file && -s $giant_file < 5 * 1024 * 1024 * 1024) {
+    warn "$giant_file was truncated, removing";
+    unlink $giant_file;
 }
-if (!-e $huge_file) {
-    diag "creating $huge_file";
-    system "dd if=/dev/zero of=$huge_file count=5G iflag=count_bytes"
+if (!-e $giant_file) {
+    diag "creating $giant_file";
+    system "dd if=/dev/zero of=$giant_file count=5G iflag=count_bytes"
 }
 
 my %files;
 {
-    open my $HUGE, "$Bin/test_huge_file" or die "Cannot open $Bin/test_huge_file: $!";
-    binmode $HUGE;
+    open my $GIANT, "$Bin/test_giant_file" or die "Cannot open $Bin/test_giant_file: $!";
+    binmode $GIANT;
     undef $/;
     # add process ID so we don't get guaranteed clashes from repeated runs
-    $files{"test_huge.$$"} = $HUGE;
+    $files{"test_giant.$$"} = $GIANT;
 }
 
 my $pool_created_p = system "ceph osd pool create $pool 1"
