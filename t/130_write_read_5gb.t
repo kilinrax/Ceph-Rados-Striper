@@ -61,21 +61,8 @@ SKIP: {
         ok( $striper->read_handle($filename, $out_fh),
             "Read back $filename object" );
         close $out_fh;
-        is( -s $out_fn, $length, "Files have equal size" );
-        #ok( $stored_data = $striper->read_to_filehandle($filename, length),
-        #    "Read back $filename object" );
-        #is( length($stored_data), $length,
-        #    "Read $length bytes from $filename object" );
-        # XXX removed until we have direct handle access
-        #unless (
-        #    ok( $stored_data eq <$handle>, "Get back $filename\'s content ok" )
-        #) {
-        #    my $rej_file = "$filename.rej";
-        #    diag "Writing saved content to $rej_file";
-        #    open my $REJ, ">$rej_file" or die "Cannot open $rej_file: $!";
-        #    print $REJ $stored_data;
-        #    close $REJ;
-        #};
+        is( -s $out_fn, $length, "Files have equal size" )
+            or diag "check $out_fn";
         ok( @stat = $striper->stat($filename), "Can stat uploaded file" );
         ok( $striper->remove($filename), "Remove $filename object" );
     }
