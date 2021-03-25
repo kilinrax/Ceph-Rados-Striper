@@ -49,7 +49,7 @@ SKIP: {
     ok( $striper = Ceph::Rados::Striper->new($io), "Create striper" );
 
     while (my ($filename, $handle) = each %files) {
-        ok( $striper->write($filename, $handle), "Write $filename object" );
+        ok( $striper->write($filename, $handle, 1), "Write $filename object" );
         my ($size, $mtime);
         ok( ($size, $mtime) = $striper->stat($filename), "Stat $filename object" );
         my $length = -s $handle;
