@@ -49,7 +49,7 @@ SKIP: {
     ok( $striper = Ceph::Rados::Striper->new($io), "Create striper" );
 
     while (my ($filename, $handle) = each %files) {
-        ok( $striper->write($filename, $handle), "Write $filename object" );
+        ok( $striper->write($filename, $handle, 1), "Write $filename object" );
         my ($size, $mtime);
         ok( ($size, $mtime) = $striper->stat($filename), "Stat $filename object" );
         my $length = -s $handle;
@@ -58,7 +58,7 @@ SKIP: {
         my $out_fn = "/tmp/$$.test.out";
         open my $out_fh, ">$out_fn"
             or die "Could not open output filehandle '$out_fn': $!";
-        ok( $striper->read_handle($filename, $out_fh),
+        ok( $striper->read_handle($filename, $out_fh, 0, 0, 1),
             "Read back $filename object" );
         close $out_fh;
         is( -s $out_fn, $length, "Files have equal size" )
