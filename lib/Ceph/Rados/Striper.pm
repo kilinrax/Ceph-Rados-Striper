@@ -122,12 +122,12 @@ sub read_handle_perl {
     }
     my $count = 0;
     #
-    for (my $pos = 0; $pos <= $len; $pos += $DEFAULT_OSD_MAX_WRITE) {
+    for (my $pos = 0; $pos <= $len; $pos += $CHUNK_SIZE) {
         my $chunk;
-        if ($pos + $DEFAULT_OSD_MAX_WRITE > $len) {
-            $chunk = $len % $DEFAULT_OSD_MAX_WRITE;
+        if ($pos + $CHUNK_SIZE > $len) {
+            $chunk = $len % $CHUNK_SIZE;
         } else {
-            $chunk = $DEFAULT_OSD_MAX_WRITE;
+            $chunk = $CHUNK_SIZE;
         }
         my $data = $self->_read($soid, $chunk, $pos);
         if ($is_filehandle) {
