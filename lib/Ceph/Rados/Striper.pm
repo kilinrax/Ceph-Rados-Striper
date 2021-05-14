@@ -12,7 +12,7 @@ use AutoLoader;
 
 our @ISA = qw(Exporter);
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 # Preloaded methods go here.
 
