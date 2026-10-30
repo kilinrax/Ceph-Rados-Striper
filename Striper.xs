@@ -89,23 +89,23 @@ _write_from_fh(striper, soid, fh, psize, debug=false)
     int       chk_sz = 1024 * 1024;
     Newx(buf, chk_sz, char);
   CODE:
-    printf("debug is %i\n", debug);
+    fprintf(stderr, "debug is %i\n", debug);
     if (debug)
-        printf("preparing to write from FH to %s\n", soid);
+        fprintf(stderr, "preparing to write from FH to %s\n", soid);
     for (off=0; off<psize; off+=chk_sz) {
         len = psize < off + chk_sz ? psize % chk_sz : chk_sz;
         err = PerlIO_read(io, buf, len);
         if (err < 0)
             croak("cannot read from filehandle: %s", strerror(-err));
         if (debug)
-            printf("writing %" PRIu64 "-%" PRIu64 " / %" PRIu64 " bytes from FH to %s\n", off, off+len, psize, soid);
+            fprintf(stderr, "writing %" PRIu64 "-%" PRIu64 " / %" PRIu64 " bytes from FH to %s\n", off, off+len, psize, soid);
         err = rados_striper_write(striper, soid, buf, len, off);
         if (err < 0)
             croak("cannot write striped object '%s': %s", soid, strerror(-err));
         retlen += len;
     }
     if (debug)
-        printf("wrote %" PRIu64 " bytes from FH to %s\n", retlen, soid);
+        fprintf(stderr, "wrote %" PRIu64 " bytes from FH to %s\n", retlen, soid);
     RETVAL = retlen;
   OUTPUT:
     RETVAL
@@ -194,17 +194,17 @@ _read_to_fh(striper, soid, fh, len = 0, off = 0, debug=false)
         len = psize-off;
     }
     if (debug)
-        printf("preparing to write from %s to FH, %" PRIu64 " bytes\n", soid, psize);
+        fprintf(stderr, "preparing to write from %s to FH, %" PRIu64 " bytes\n", soid, psize);
     for (bufpos=off; bufpos<len+off; bufpos+=chk_sz) {
         // logic is 'will bufpos move past ien+off next cycle'
         buflen = len+off < bufpos+chk_sz ? len % chk_sz : chk_sz;
         if (debug)
-            printf("Reading %u bytes, offset %" PRIu64 ", of %" PRIu64 "-%" PRIu64 "/%" PRIu64 " from striper\n", buflen, bufpos, off, len+off, psize);
+            fprintf(stderr, "Reading %u bytes, offset %" PRIu64 ", of %" PRIu64 "-%" PRIu64 "/%" PRIu64 " from striper\n", buflen, bufpos, off, len+off, psize);
         err = rados_striper_read(striper, soid, buf, buflen, bufpos);
         if (err < 0)
             croak("cannot read object '%s': %s", soid, strerror(-err));
         if (debug)
-            printf("Writing %zu bytes to FH\n", len);
+            fprintf(stderr, "Writing %zu bytes to FH\n", len);
         err = PerlIO_write(io, buf, buflen);
         if (err < 0)
             croak("cannot write to filehandle: %s", strerror(-err));
@@ -223,7 +223,7 @@ _remove(striper, soid)
   PREINIT:
     int              err;
   CODE:
-    printf("Removing striped object %s\n", soid);
+    fprintf(stderr, "Removing striped object %s\n", soid);
     err = rados_striper_remove(striper, soid);
     if (err < 0)
         croak("cannot remove striped object '%s': %s", soid, strerror(-err));
