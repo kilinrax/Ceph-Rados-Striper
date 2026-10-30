@@ -166,7 +166,7 @@ _read(striper, soid, len, off = 0)
   OUTPUT:
     RETVAL
 
-int
+uint64_t
 _read_to_fh(striper, soid, fh, len = 0, off = 0, debug=false)
     rados_striper_t  striper
     const char *     soid
@@ -183,6 +183,7 @@ _read_to_fh(striper, soid, fh, len = 0, off = 0, debug=false)
     int              err;
   INIT:
     PerlIO *  io     = IoOFP(sv_2io(fh));
+    uint64_t  retlen = 0;
     int       chk_sz = 1024 * 1024;
     Newx(buf, chk_sz, char);
   CODE:
@@ -208,10 +209,10 @@ _read_to_fh(striper, soid, fh, len = 0, off = 0, debug=false)
         err = PerlIO_write(io, buf, buflen);
         if (err < 0)
             croak("cannot write to filehandle: %s", strerror(errno));
+        retlen += err;
     }
-    if (err < 0)
-        croak("cannot read object '%s': %s", soid, strerror(-err));
-    RETVAL = err;
+    Safefree(buf);
+    RETVAL = retlen;
   OUTPUT:
     RETVAL
 
