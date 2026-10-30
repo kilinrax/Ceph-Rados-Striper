@@ -125,7 +125,7 @@ sub read_handle_perl {
     #
     for (my $pos = $off; $pos <= $len+$off; $pos += $CHUNK_SIZE) {
         my $chunk;
-        if ($pos + $CHUNK_SIZE > $len) {
+        if ($pos + $CHUNK_SIZE > $len+$off) {
             $chunk = $len % $CHUNK_SIZE;
         } else {
             $chunk = $CHUNK_SIZE;
