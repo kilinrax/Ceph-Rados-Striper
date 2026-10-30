@@ -62,6 +62,7 @@ SKIP: {
             "Read back $filename object" );
         close $out_fh;
         is( -s $out_fn, $length, "Files have equal size" );
+        unlink $out_fn;
         #ok( $stored_data = $striper->read_to_filehandle($filename, length),
         #    "Read back $filename object" );
         #is( length($stored_data), $length,

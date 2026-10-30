@@ -61,8 +61,11 @@ SKIP: {
         ok( $striper->read_handle($filename, $out_fh, 0, 0, 1),
             "Read back $filename object" );
         close $out_fh;
-        is( -s $out_fn, $length, "Files have equal size" )
-            or diag "check $out_fn";
+        if ( is( -s $out_fn, $length, "Files have equal size" ) ) {
+            unlink $out_fn;
+        } else {
+            diag "check $out_fn";
+        }
         ok( @stat = $striper->stat($filename), "Can stat uploaded file" );
         ok( $striper->remove($filename), "Remove $filename object" );
     }
