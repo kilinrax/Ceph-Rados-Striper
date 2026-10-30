@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 14;
+use Test::More tests => 17;
 use Test::Exception;
 use Ceph::Rados;
 use Ceph::Rados::Striper;
@@ -37,7 +37,7 @@ my %files;
 my $pool_created_p = system "ceph osd pool create $pool 1"
     unless $ENV{CEPH_POOL};
 SKIP: {
-    skip "Can't create $pool pool", 11 if $pool_created_p;
+    skip "Can't create $pool pool", 17 if $pool_created_p;
 
     my ($cluster, $io, $striper, $list, @stat);
     ok( $cluster = Ceph::Rados->new($client), "Create cluster handle" );
