@@ -151,14 +151,18 @@ _read(striper, soid, len, off = 0)
     uint64_t         off
   PREINIT:
     char *           buf;
-    uint64_t         retlen;
+    int              retlen;
   INIT:
     Newx(buf, len, char);
   CODE:
     retlen = rados_striper_read(striper, soid, buf, len, off);
-    if (retlen < 0)
+    if (retlen < 0) {
+        Safefree(buf);
         croak("cannot read object '%s': %s", soid, strerror(-retlen));
-    RETVAL = newSVpv(buf, retlen);
+    }
+    /* newSVpv treats len 0 as strlen(); newSVpvn does not */
+    RETVAL = newSVpvn(buf, retlen);
+    Safefree(buf);
   OUTPUT:
     RETVAL
 
