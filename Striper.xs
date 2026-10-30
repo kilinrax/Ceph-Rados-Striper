@@ -204,7 +204,7 @@ _read_to_fh(striper, soid, fh, len = 0, off = 0, debug=false)
         if (err < 0)
             croak("cannot read object '%s': %s", soid, strerror(-err));
         if (debug)
-            fprintf(stderr, "Writing %zu bytes to FH\n", len);
+            fprintf(stderr, "Writing %u bytes to FH\n", buflen);
         err = PerlIO_write(io, buf, buflen);
         if (err < 0)
             croak("cannot write to filehandle: %s", strerror(errno));
